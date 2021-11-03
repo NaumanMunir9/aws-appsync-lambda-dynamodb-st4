@@ -10,9 +10,9 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
     // The code that defines your stack goes here
 
     // Creates the AppSync API
-    const appSyncApi = new appsync.GraphqlApi(this, "MyDynamodbApi", {
-      name: "cdk-appsync-dynamodb-lambda-api",
-      schema: appsync.Schema.fromAsset("graphql/schema.graphql"),
+    const api = new appsync.GraphqlApi(this, "MyDBApi", {
+      name: "cdk-appsync-dynamodb-api",
+      schema: appsync.Schema.fromAsset("schema/schema.graphql"),
       authorizationConfig: {
         defaultAuthorization: {
           authorizationType: appsync.AuthorizationType.API_KEY,
@@ -24,32 +24,32 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
     });
 
     // lambda function
-    const lambdaFunction = new lambda.Function(this, "DynamodbLambda", {
+    const lambda_function = new lambda.Function(this, "DynamoDBLambda", {
       runtime: lambda.Runtime.NODEJS_14_X,
-      handler: "main.handler",
+      handler: "index.handler",
       code: lambda.Code.fromAsset("lambda"),
     });
 
     // Set the new Lambda function as a data source for the AppSync API
-    const appSyncLambdaDS = appSyncApi.addLambdaDataSource(
+    const lambda_dataSource = api.addLambdaDataSource(
       "lambdaDataSource",
-      lambdaFunction
+      lambda_function
     );
 
     // graphql Query resolvers
-    appSyncLambdaDS.createResolver({
-      fieldName: "Query",
-      typeName: "welcome",
+    lambda_dataSource.createResolver({
+      typeName: "Query",
+      fieldName: "welcome",
     });
 
     // graphql Mutation resolvers
-    appSyncLambdaDS.createResolver({
-      fieldName: "Mutation",
-      typeName: "addProduct",
+    lambda_dataSource.createResolver({
+      typeName: "Mutation",
+      fieldName: "addProduct",
     });
 
     // Creating DynamoDB table
-    const productDdbTable = new ddb.Table(this, "ProductTable", {
+    const productTable = new ddb.Table(this, "ProductTable", {
       tableName: "Products",
       partitionKey: {
         name: "id",
@@ -58,9 +58,9 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
     });
 
     // enable the Lambda function to access the DynamoDB table (using IAM)
-    productDdbTable.grantFullAccess(lambdaFunction);
+    productTable.grantFullAccess(lambda_function);
 
     // Create an environment variable that we will use in the function code
-    lambdaFunction.addEnvironment("PRODUCTS_TABLE", productDdbTable.tableName);
+    lambda_function.addEnvironment("TABLE_NAME", productTable.tableName);
   }
 }
