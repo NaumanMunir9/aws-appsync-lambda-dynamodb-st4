@@ -35,5 +35,26 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
       "lambdaDataSource",
       lambdaFunction
     );
+
+    // graphql resolvers
+    appSyncLambdaDS.createResolver({
+      fieldName: "Query",
+      typeName: "welcome",
+    });
+
+    // Creating DynamoDB table
+    const productDdbTable = new ddb.Table(this, "ProductTable", {
+      tableName: "Products",
+      partitionKey: {
+        name: "id",
+        type: ddb.AttributeType.STRING,
+      },
+    });
+
+    // enable the Lambda function to access the DynamoDB table (using IAM)
+    productDdbTable.grantFullAccess(lambdaFunction);
+
+    // Create an environment variable that we will use in the function code
+    lambdaFunction.addEnvironment("PRODUCTS_TABLE", productDdbTable.tableName);
   }
 }
