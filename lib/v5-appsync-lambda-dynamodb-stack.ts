@@ -55,6 +55,8 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
         name: "id",
         type: ddb.AttributeType.STRING,
       },
+      readCapacity: 1,
+      writeCapacity: 1,
     });
 
     // enable the Lambda function to access the DynamoDB table (using IAM)
