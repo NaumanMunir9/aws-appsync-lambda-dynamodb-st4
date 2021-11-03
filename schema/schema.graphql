@@ -15,4 +15,5 @@ type Product {
 
 type Mutation {
   addProduct(product: ProductInput): Product
+  deleteProduct(productId: String): String
 }
