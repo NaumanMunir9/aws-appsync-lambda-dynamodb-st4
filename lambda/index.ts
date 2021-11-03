@@ -4,7 +4,7 @@ const documentClient = new DynamoDB.DocumentClient();
 
 type AppSyncEvent = {
   info: {
-    filedName: String;
+    fieldName: String;
   };
   arguments: {
     product: Product;
@@ -18,9 +18,9 @@ type Product = {
 };
 
 export async function handler(event: AppSyncEvent) {
-  if (event.info.filedName == "welcome") {
+  if (event.info.fieldName == "welcome") {
     return `Hello World!`;
-  } else if (event.info.filedName == "addProduct") {
+  } else if (event.info.fieldName == "addProduct") {
     event.arguments.product.id = `key-${Math.random()}`;
     const params = {
       TableName: process.env.TABLE_NAME || "",
