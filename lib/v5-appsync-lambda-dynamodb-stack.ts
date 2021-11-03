@@ -36,10 +36,16 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
       lambdaFunction
     );
 
-    // graphql resolvers
+    // graphql Query resolvers
     appSyncLambdaDS.createResolver({
       fieldName: "Query",
       typeName: "welcome",
+    });
+
+    // graphql Mutation resolvers
+    appSyncLambdaDS.createResolver({
+      fieldName: "Mutation",
+      typeName: "addProduct",
     });
 
     // Creating DynamoDB table
