@@ -10,7 +10,7 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
     // The code that defines your stack goes here
 
     // Creates the AppSync API
-    const api = new appsync.GraphqlApi(this, "MyDynamodbApi", {
+    const appSyncApi = new appsync.GraphqlApi(this, "MyDynamodbApi", {
       name: "cdk-appsync-dynamodb-lambda-api",
       schema: appsync.Schema.fromAsset("graphql/schema.graphql"),
       authorizationConfig: {
@@ -24,5 +24,16 @@ export class V5AppsyncLambdaDynamodbStack extends cdk.Stack {
     });
 
     // lambda function
+    const lambdaFunction = new lambda.Function(this, "DynamodbLambda", {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: "main.handler",
+      code: lambda.Code.fromAsset("lambda"),
+    });
+
+    // Set the new Lambda function as a data source for the AppSync API
+    const appSyncLambdaDS = appSyncApi.addLambdaDataSource(
+      "lambdaDataSource",
+      lambdaFunction
+    );
   }
 }
